@@ -89,13 +89,13 @@ def students():
    return jsonify(res)
 
 
-@app.route('/db/students/<int:id>', methods=['GET'])
+@app.route('/db/student/<int:id>', methods=['GET','PUT'])
 def student(id):
    res = {"success":False, "info":"查詢失敗"}
    
    try:
       if request.method == 'GET':
-         sql = 'SELECT * FROM `students` WHERE `s_id` ={} '.format(id)
+         sql = 'SELECT * FROM `students` WHERE `s_id` ={}'.format(id)
          cursor.execute(sql)
 
          if cursor.rowcount > 0:
@@ -113,6 +113,19 @@ def student(id):
             res['info'] = '查無資料'
 
          db.commit()
+
+      elif request.method == 'PUT':
+         res['info'] = "修改失敗"
+         
+         sql = "UPDATE `students` SET `s_name`='{}',`s_nickname`='{}' WHERE `s_id`={}".format(request.json['username'], request.json['password'], id)
+
+         cursor.execute(sql)
+
+         if cursor.rowcount > 0:
+            res['success'] = True
+            res['info'] = '更新成功'
+
+         db.commit() 
 
    except Exception as e:
       db.rollback()
