@@ -88,5 +88,38 @@ def students():
 
    return jsonify(res)
 
+
+@app.route('/db/students/<int:id>', methods=['GET'])
+def student(id):
+   res = {"success":False, "info":"查詢失敗"}
+   
+   try:
+      if request.method == 'GET':
+         sql = 'SELECT * FROM `students` WHERE `s_id` ={} '.format(id)
+         cursor.execute(sql)
+
+         if cursor.rowcount > 0:
+            # results = cursor.fetchall()
+
+            columns = cursor.description
+            results = [{columns[index][0]:column for index, column in enumerate(value)} for value in cursor.fetchall()]
+
+            res['success'] = True
+            res['info'] = '查詢成功'
+            res['results'] = results
+            # res['des'] = cursor.description
+            res['length'] = cursor.rowcount
+         else:
+            res['info'] = '查無資料'
+
+         db.commit()
+
+   except Exception as e:
+      db.rollback()
+      res['info'] = f'SQL 執行失敗: {e}'
+
+   return jsonify(res)
+
+
 app.run()
 
