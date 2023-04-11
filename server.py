@@ -89,7 +89,7 @@ def students():
    return jsonify(res)
 
 
-@app.route('/db/student/<int:id>', methods=['GET','PUT'])
+@app.route('/db/student/<int:id>', methods=['GET','PUT', 'DELETE'])
 def student(id):
    res = {"success":False, "info":"查詢失敗"}
    
@@ -126,6 +126,18 @@ def student(id):
             res['info'] = '更新成功'
 
          db.commit() 
+
+      elif request.method == 'DELETE':
+         res['info'] = '刪除失敗'
+
+         sql = "DELETE FROM `students` WHERE `s_id` = {}".format(id)
+         cursor.execute(sql)
+
+         if cursor.rowcount > 0:
+            res['success'] = True
+            res['info'] = '刪除成功'
+            
+         db.commit()
 
    except Exception as e:
       db.rollback()
